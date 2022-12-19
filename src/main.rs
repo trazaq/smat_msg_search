@@ -12,8 +12,10 @@ use axum::{
     response::{IntoResponse, Response},
     Router,
 };
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::fmt::{Display, Formatter};
 use std::fs;
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -42,7 +44,20 @@ async fn main() {
 
 #[derive(Template)]
 #[template(path = "index.html")]
-struct HelloTemplate;
+struct Sites {
+    sites: Vec<String>,
+}
+
+/*#[derive(Debug)]
+struct Site {
+    site: Vec<String>
+}
+
+impl Display for Site {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.site.join(","))
+    }
+}*/
 
 struct HtmlTemplate<T>(T);
 
@@ -62,31 +77,48 @@ where
     }
 }
 
+lazy_static! {
+    // have to enable flag '(?m)' to use '^' and '$'
+    static ref RE: Regex =
+        Regex::new(r"(?m)^environs=.*$").expect("Error Compiling Regex Expression");
+}
+
 async fn index() -> impl IntoResponse {
-    lazy_static! {
-        // have to enable flag '(?m)' to use '^' and '$'
-        static ref RE: Regex =
-            Regex::new(r"(?m)^environs=.*$").expect("Error Compiling Regex Expression");
-    }
     //let RE = Regex::new(r"(?m)^environs=.*$").expect("Error Compiling Regex Expression");
     let contents = fs::read_to_string("tests/server.ini");
     match contents {
         Ok(contents) => {
-            if let Some(sites) = RE.find(&contents) {
-                let sites: Vec<&str> = sites
+            if let Some(raw_sites) = RE.find(&contents) {
+                let sites: Vec<String> = raw_sites
                     .as_str()
                     .strip_prefix("environs=")
                     .unwrap()
                     .split(';')
-                    .into_iter()
+                    //.into_iter()
                     .filter_map(|site| site.split('/').last())
+                    .map(|site| site.into())
+                    .sorted()
+                    //.chunks(5)
+                    //.into_iter()
+                    //.map(|chunk| Site {site: chunk.collect()})
                     .collect();
-                return format!("{:?}", sites);
+
+                let template = Sites { sites: sites };
+                return HtmlTemplate(template);
+                //return format!("{:?}", sites);
             }
-            "No sites".to_string()
+            //"No sites".to_string()
+            //let template = Sites { sites: vec![Site {site: vec![]}] };
+            let template = Sites { sites: vec![] };
+            HtmlTemplate(template)
         }
         Err(e) => {
-            format!("{}", e)
+            let template = Sites {
+                //sites: vec![Site {site: vec![format!("{}", e)]}],
+                sites: vec![e.to_string()]
+            };
+            HtmlTemplate(template)
+            //format!("There's an error {}", e)
         }
     }
 

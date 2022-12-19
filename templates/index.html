@@ -5,10 +5,22 @@
     <title>Mt Sinai IE Monitor</title>
 </head>
 <body style="background-color:rgb(32,33,36);" text="white">
-    <p align="center"><br>
-    <h1 align="center">Interface Monitor Application (Test Environment)</h1>
-    <p align="center">&nbsp;</p>
-    <p><br>
+<p align="center"><br>
+<h1 align="center">Interface Monitor Application (Test Environment)</h1>
+<p align="center">&nbsp;</p>
+<p><br>
 
+<table id="index_table" border="0" align="center">
+    <tr>
+        {% for site in sites %}
+        <td width="200" align="left" title="Status of Interfaces">
+            <button style="background-color:#ADBECF; width: 183; height: 75; border: 4px solid white"
+                    onclick="window.location='/smat/status?site={{ site }}'">
+                <font face="Arial" size="4" color="black"><b>{{ site }}</b></font>
+            </button>
+        </td>
+        {% endfor %}
+    </tr>
+</table>
 </body>
 </html>
