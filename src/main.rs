@@ -8,6 +8,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 #[tokio::main]
 async fn main() {
     dotenv().ok(); // load .env file variables then use with std::env:: functions
+
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
@@ -19,7 +20,9 @@ async fn main() {
     let app = Router::new().route("/", get(index));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+
     tracing::debug!("listening on {}", addr);
+
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
