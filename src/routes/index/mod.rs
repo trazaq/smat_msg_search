@@ -55,24 +55,21 @@ fn get_sites() -> Option<String> {
 }
 
 fn generate_html(sites: Vec<Vec<String>>) -> String {
-    let color;
-    let environment;
+    let mut color = "#ADBECF;".to_string();
+    let mut environment = "Unknown";
 
     if let Ok(env) = env::var("environment") {
         match env.to_lowercase().as_str() {
             "production" | "prod" => {
-                color = "#00e472;";
                 environment = "Production";
+                if let Ok(c) = env::var("color") {
+                    color = c;
+                }
             }
-            _ => {
-                color = "#ADBECF;";
+            "test" => {
                 environment = "Test";
             }
-        }
-    } else {
-        {
-            color = "#ADBECF;";
-            environment = "Test";
+            _ => {}
         }
     }
 
@@ -93,7 +90,7 @@ fn generate_html(sites: Vec<Vec<String>>) -> String {
         for site in site {
             html.push_str(r#"<td width="200" align="left" title="Status of Interfaces">"#);
             html.push_str(r#"<button STYLE="background-color:"#);
-            html.push_str(color);
+            html.push_str(color.as_str());
             html.push_str(r#"width: 183; height: 75; border: 4px solid white""#);
             html.push_str(r#"ONCLICK="window.location='/smatdb/status?site="#);
             html.push_str(&site);
