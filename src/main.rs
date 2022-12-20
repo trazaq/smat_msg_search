@@ -1,28 +1,13 @@
-//! Run with
-//!
-//! ```not_rust
-//! cd examples && cargo run -p example-print-request-response
-//! ```
-
-use askama::Template;
-use axum::response::Html;
 use axum::routing::get;
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
-    Router,
-};
-use itertools::Itertools;
-use lazy_static::lazy_static;
-use regex::Regex;
+use axum::Router;
+use dotenv::dotenv;
 use smat_msg_search::routes::index;
-use std::fmt::{Display, Formatter};
-use std::fs;
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok(); // load .env file variables then use with std::env:: functions
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
