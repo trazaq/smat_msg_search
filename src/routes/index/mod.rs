@@ -15,11 +15,11 @@ lazy_static! {
 pub async fn index() -> impl IntoResponse {
     Response::builder()
         .header(CONTENT_TYPE, mime::TEXT_HTML_UTF_8.to_string())
-        .body(sites().unwrap_or_else(|| "No Sites Found".to_string()))
+        .body(get_sites().unwrap_or_else(|| "No Sites Found".to_string()))
         .unwrap()
 }
 
-fn sites() -> Option<String> {
+fn get_sites() -> Option<String> {
     let contents = match env::var("server_ini") {
         Ok(path) => fs::read_to_string(path),
         Err(e) => {
