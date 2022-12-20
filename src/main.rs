@@ -1,7 +1,7 @@
 use axum::routing::get;
 use axum::Router;
 use dotenv::dotenv;
-use smat_msg_search::routes::index;
+use smat_msg_search::routes::{index, status};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -17,7 +17,9 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let app = Router::new().route("/", get(index));
+    let app = Router::new()
+        .route("/", get(index))
+        .route("/smatdb/status", get(status));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
