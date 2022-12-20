@@ -20,7 +20,7 @@ pub async fn index() -> impl IntoResponse {
 }
 
 fn sites() -> Option<String> {
-    let contents = match env::var("SERVER_INI") {
+    let contents = match env::var("server_ini") {
         Ok(path) => fs::read_to_string(path),
         Err(e) => {
             return Some(format!(
@@ -46,7 +46,7 @@ fn sites() -> Option<String> {
                     .into_iter()
                     .map(|chunk| chunk.collect())
                     .collect();
-                return Some(html(sites));
+                return Some(generate_html(sites));
             }
         }
         Err(e) => return Some(e.to_string()),
@@ -54,8 +54,9 @@ fn sites() -> Option<String> {
     None
 }
 
-fn html(sites: Vec<Vec<String>>) -> String {
+fn generate_html(sites: Vec<Vec<String>>) -> String {
     let mut html = String::new();
+
     html.push_str("<html>");
     html.push_str("<HEAD><TITLE>Mt Sinai IE Monitor</TITLE></HEAD>");
     html.push_str(r#"<BODY style="background-color:rgb(32,33,36);" text="white">"#);
@@ -69,14 +70,16 @@ fn html(sites: Vec<Vec<String>>) -> String {
         for site in site {
             html.push_str(r#"<td width="200" align="left" title="Status of Interfaces">"#);
             html.push_str(r#"<button STYLE="background-color:"#);
-            if let Ok(env) = env::var("ENVIRONMENT") {
-                match env.as_str() {
-                    "PRODUCTION" => html.push_str("#00e472;"),
+
+            if let Ok(env) = env::var("environment") {
+                match env.to_lowercase().as_str() {
+                    "production" | "prod" => html.push_str("#00e472;"),
                     _ => html.push_str("#ADBECF;"),
                 }
             } else {
                 html.push_str("#ADBECF;");
             }
+
             html.push_str(r#"width: 183; height: 75; border: 4px solid white""#);
             html.push_str(r#"ONCLICK="window.location='/smat/status?site="#);
             html.push_str(&site);
