@@ -16,7 +16,7 @@ pub async fn index() -> impl IntoResponse {
     Response::builder()
         .header(CONTENT_TYPE, mime::TEXT_HTML_UTF_8.to_string())
         .body(get_sites().unwrap_or_else(|| "No Sites Found".to_string()))
-        .unwrap()
+        .expect("Error in index() Response::builder()")
 }
 
 fn get_sites() -> Option<String> {
@@ -36,7 +36,7 @@ fn get_sites() -> Option<String> {
                 let sites: Vec<Vec<String>> = raw_sites
                     .as_str()
                     .strip_prefix("environs=")
-                    .unwrap()
+                    .expect("Error Removing 'environs=' prefix")
                     .split(';')
                     //.into_iter()
                     .filter_map(|site| site.split('/').last())
