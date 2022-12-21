@@ -23,7 +23,7 @@ pub async fn status(_site: Query<Site>) -> impl IntoResponse {
     .unwrap();
 
     let mut stmt = conn
-        .prepare(r#"SELECT cast(MessageContent as text) FROM smat_msgs ORDER BY TimeIn ASC;"#)
+        .prepare(r#"SELECT REPLACE(cast(MessageContent as text), CHAR(13),'<br>') FROM smat_msgs ORDER BY TimeIn ASC;"#)
         .unwrap();
 
     let mut rows = stmt.query([]).unwrap();
@@ -32,7 +32,7 @@ pub async fn status(_site: Query<Site>) -> impl IntoResponse {
     while let Some(row) = rows.next().unwrap() {
         let mut msg: String = row.get(0).unwrap();
         //let mut msg = String::from_utf8_lossy(&msg).to_string();
-        msg = msg.replace("\r", "<br>");
+        //msg = msg.replace("\r", "<br>");
         msg.insert_str(0, "<p>");
         msg.push_str("</p>");
         msgs.push(msg);
