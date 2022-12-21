@@ -32,6 +32,7 @@ pub async fn status(_site: Query<Site>) -> impl IntoResponse {
     while let Some(row) = rows.next().unwrap() {
         let mut msg: String = row.get(0).unwrap();
         //let mut msg = String::from_utf8_lossy(&msg).to_string();
+        msg = msg.replace("\r", "<br>");
         msg.insert_str(0, "<p>");
         msg.push_str("</p>");
         msgs.push(msg);
