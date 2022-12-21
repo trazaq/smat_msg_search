@@ -23,7 +23,7 @@ pub async fn status(_site: Query<Site>) -> impl IntoResponse {
     .unwrap();
 
     let mut stmt = conn
-        .prepare(r#"SELECT REPLACE(cast(MessageContent as text), CHAR(13),'<br>') FROM smat_msgs ORDER BY TimeIn ASC;"#)
+        .prepare(r#"SELECT REPLACE(CAST(MessageContent AS TEXT), CHAR(13), '<br>') FROM smat_msgs ORDER BY TimeIn ASC;"#)
         .unwrap();
 
     let mut rows = stmt.query([]).unwrap();
