@@ -4,8 +4,8 @@ use dotenv::dotenv;
 use smat_msg_search::routes::{index, status};
 use std::net::SocketAddr;
 use tower_http::compression::CompressionLayer;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tower_http::trace::TraceLayer;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {

@@ -2,6 +2,7 @@ use axum::extract::Query;
 use axum::http::header::CONTENT_TYPE;
 use axum::response::IntoResponse;
 use hyper::Response;
+use if_chain::if_chain;
 use rusqlite::{Connection, Error, OpenFlags};
 use serde::Deserialize;
 
@@ -23,25 +24,38 @@ pub async fn status(site: Query<Site>) -> impl IntoResponse {
     .unwrap();
 
     let sql = r#"SELECT CAST(MessageContent AS TEXT) FROM smat_msgs ORDER BY TimeIn ASC;"#;
-    let pragma = format!("pragma key = '{}';pragma cipher_compatibility = 3;", site.site);
-    let mut stmt = match conn
-        .prepare(sql)
-    {
+    let pragma = format!(
+        "pragma key = '{}';pragma cipher_compatibility = 3;",
+        site.site
+    );
+    let mut stmt = if_chain! {
+        if let Err(e) = conn.prepare(sql);
+        if let Error::SqliteFailure(code, _) = e;
+        if code.extended_code == 26;
+        then {
+            conn.execute_batch(&pragma).unwrap();
+            conn.prepare(sql).unwrap()
+        } else {
+            panic!("HELOOOOO")
+        }
+    };
+    /*let mut stmt = match conn.prepare(sql) {
         Ok(stmt) => stmt,
         Err(e) => match e {
             Error::SqliteFailure(code, _) => {
                 if code.extended_code == 26 {
+                    println!("{:?}", e.sqlite_error());
                     conn.execute_batch(&pragma).unwrap();
                     conn.prepare(sql).unwrap()
                 } else {
-                    panic!("{:?}", code)
+                    panic!("HELLOOOOO {:?}", code)
                 }
             }
             _ => {
-                panic!("{:?}", e)
+                panic!("YOOOOOOO {:?}", e)
             }
         },
-    };
+    };*/
 
     let mut rows = stmt.query([]).unwrap();
 

@@ -21,3 +21,4 @@ dotenv = "0.15.0"
 serde = { version = "~1.0", features  = ["derive"] }
 
 rusqlite = { version = "0.28.0", features = ["bundled-sqlcipher-vendored-openssl"] }
+if_chain = "1.0.2"
