@@ -3,7 +3,9 @@ use axum::Router;
 use dotenv::dotenv;
 use smat_msg_search::routes::{index, status};
 use std::net::SocketAddr;
+use tower_http::compression::CompressionLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() {
@@ -18,8 +20,10 @@ async fn main() {
         .init();
 
     let app = Router::new()
+        .route("/smatdb/status", get(status))
+        .layer(CompressionLayer::new())
         .route("/", get(index))
-        .route("/smatdb/status", get(status));
+        .layer(TraceLayer::new_for_http());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
