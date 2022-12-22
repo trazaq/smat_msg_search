@@ -19,4 +19,4 @@ mime = "0.3.16"
 dotenv = "0.15.0"
 serde = { version = "~1.0", features  = ["derive"] }
 
-rusqlite = { version = "0.28.0", features = ["bundled"] }
+rusqlite = { version = "0.28.0", features = ["bundled-sqlcipher-vendored-openssl"] }
