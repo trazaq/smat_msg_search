@@ -1,5 +1,6 @@
 use axum::extract::Query;
 use axum::http::header::CONTENT_TYPE;
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use hyper::Response;
 use if_chain::if_chain;
@@ -34,9 +35,12 @@ pub async fn status(site: Query<Site>) -> impl IntoResponse {
         if code.extended_code == 26;
         then {
             conn.execute_batch(&pragma).unwrap();
-            conn.prepare(sql).unwrap()
+            match conn.prepare(sql) {
+                 Ok(stmt) => stmt,
+                 Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response()
+            }
         } else {
-            panic!("HELOOOOO")
+           return (StatusCode::INTERNAL_SERVER_ERROR, "UNKNOWN ERROR OPENING THE DATABASE".to_owned()).into_response()
         }
     };
     /*let mut stmt = match conn.prepare(sql) {
@@ -73,4 +77,5 @@ pub async fn status(site: Query<Site>) -> impl IntoResponse {
         .header(CONTENT_TYPE, mime::TEXT_HTML_UTF_8.to_string())
         .body(msgs.join(""))
         .unwrap()
+        .into_response()
 }
